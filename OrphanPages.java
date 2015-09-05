@@ -8,7 +8,9 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -26,13 +28,44 @@ public class OrphanPages extends Configured implements Tool {
 
     @Override
     public int run(String[] args) throws Exception {
-        //TODO
+        //DOING: any tutorial
+    	// Ref: https://hadoop.apache.org/docs/r2.7.0/api/org/apache/hadoop/mapreduce/Job.html
+    	Configuration conf = this.getConf();
+    	Job job = Job.getInstance(conf, "Orphan Pages");
+    	// set final output type
+    	job.setOutputKeyClass(IntWritable.class);
+    	job.setOutputValueClass(NullWritable.class);
+    	
+    	job.setMapOutputKeyClass(IntWritable.class);
+    	job.setMapOutputValueClass(IntWritable.class);
+    	
+    	job.setMapperClass(LinkCountMap.class);
+    	job.setReducerClass(OrphanPageReduce.class);
+    	
+    	FileInputFormat.setInputPathFilter(job, new Path(args[0]));
+    	FileOutputFormat.setOutputPath(job, new Path(args[1]));
+    	
+    	job.setInputFormatClass(KeyValueTextInputFormat.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
+        
+    	job.setJarByClass(OrphanPages.class);
+    	return job.waitForCompletion(true) ? 0 : 1;
     }
 
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            //TODO
+            //DONE
+        	String delimiter = ": ";
+        	String line = value.toString(); 
+        	StringTokenizer tokenizer = new StringTokenizer(line, delimiter);
+        	Integer from = Integer.parseInt(tokenizer.nextToken());
+        	context.write(new IntWritable(from), new IntWritable(0));
+        	
+        	while (tokenizer.hasMoreTokens()) {
+        		Integer to = Integer.parseInt(tokenizer.nextToken());        		
+        		context.write(new IntWritable(to), new IntWritable(1));
+        	}
         }
     }
 
@@ -40,6 +73,16 @@ public class OrphanPages extends Configured implements Tool {
         @Override
         public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             //TODO
+        	boolean orphan = true;
+        	for (IntWritable val: values) {
+        		if (val.get() > 0) {
+        			orphan = false;
+        			break;
+        		}
+        	}
+        	if (orphan) {
+        		context.write(key, NullWritable.get());
+        	}
         }
     }
 }
