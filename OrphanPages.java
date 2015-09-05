@@ -59,8 +59,10 @@ public class OrphanPages extends Configured implements Tool {
         	String delimiter = ": ";
         	String line = value.toString(); 
         	StringTokenizer tokenizer = new StringTokenizer(line, delimiter);
-        	Integer from = Integer.parseInt(tokenizer.nextToken());
-        	context.write(new IntWritable(from), new IntWritable(0));
+        	if (tokenizer.hasMoreTokens()) {
+        		Integer from = Integer.parseInt(tokenizer.nextToken());
+        		context.write(new IntWritable(from), new IntWritable(0));
+        	}
         	
         	while (tokenizer.hasMoreTokens()) {
         		Integer to = Integer.parseInt(tokenizer.nextToken());        		
