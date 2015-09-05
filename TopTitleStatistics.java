@@ -217,8 +217,8 @@ public class TopTitleStatistics extends Configured implements Tool {
             for (Pair<Integer, String> item: countToTitleMap) {
                 IntWritable value = new IntWritable(item.first);  
                 sum += value.get();
-                min = Math.min(min, value);
-                max = Math.max(max, value);
+                min = Math.min(min, value.get());
+                max = Math.max(max, value.get());
             }
             //min = Math.min(min, countToTitleMap.first());
             //max = Math.max(max, countToTitleMap.last());
