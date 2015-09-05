@@ -19,6 +19,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import TopWords.TextArrayWritable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -126,21 +128,35 @@ public class TopTitles extends Configured implements Tool {
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-        // TODO
+        	// DONE
+        	String line = value.toString();
+        	StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters);
+        	while (tokenizer.hasMoreTokens()) {
+        		nextToken = tokenizer.nextToken().trim().toLowerCase();
+        		if (!this.stopWords.contains(nextToken)) {
+        			context.write(new Text(nextToken), new IntWritable(1));
+        		}
+        	}
         }
     }
 
     public static class TitleCountReduce extends Reducer<Text, IntWritable, Text, IntWritable> {
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            // TODO
+            // DONE
+        	int sum = 0;
+        	for (IntWritable val: values) {
+        		sum += val.get();
+        	}
+        	context.write(key, new IntWritable(sum));
         }
     }
 
     public static class TopTitlesMap extends Mapper<Text, Text, NullWritable, TextArrayWritable> {
         Integer N;
-        // TODO
-
+        // DONE
+        private TreeSet<Pair<Integer, String>> countToTitleMap = new TreeSet<Pair<Integer, String>>();
+       
         @Override
         protected void setup(Context context) throws IOException,InterruptedException {
             Configuration conf = context.getConfiguration();
@@ -149,19 +165,31 @@ public class TopTitles extends Configured implements Tool {
 
         @Override
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-            // TODO
+            // DONE
+        	String word = key.toString();
+        	Integer count = Integer.parseInt(value);
+        	countToTitleMap.add(new Pair<count, word>);
+        	
+        	if (countToTitleMap.size() > this.N) {
+        		countToTitleMap.remove(countToTitleMap.first());
+        	}
         }
 
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
-            // TODO
+            // DONE
+            for (Pair<Integer, String> item : countToTitleMap) {
+                String[] strings = {item.second, item.first.toString()};
+                TextArrayWritable val = new TextArrayWritable(strings);
+                context.write(NullWritable.get(), val);
+            }
         }
     }
 
     public static class TopTitlesReduce extends Reducer<NullWritable, TextArrayWritable, Text, IntWritable> {
         Integer N;
-        // TODO
-
+        // DONE
+        private TreeSet<Pair<Integer, String>> countToTitleMap = new TreeSet<Pair<Integer, String>>();
         @Override
         protected void setup(Context context) throws IOException,InterruptedException {
             Configuration conf = context.getConfiguration();
@@ -170,7 +198,25 @@ public class TopTitles extends Configured implements Tool {
 
         @Override
         public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context) throws IOException, InterruptedException {
-            // TODO
+            // DONE
+            for (TextArrayWritable val: values) {
+                Text[] pair= (Text[]) val.toArray();
+
+                String word = pair[0].toString();
+                Integer count = Integer.parseInt(pair[1].toString());
+
+                countToTitleMap.add(new Pair<Integer, String>(count, word));
+
+                if (countToTitleMap.size() > 10) {
+                    countToTitleMap.remove(countToTitleMap.first());
+                }
+            }
+
+            for (Pair<Integer, String> item: countToTitleMap) {
+                Text word = new Text(item.second);
+                IntWritable value = new IntWritable(item.first);
+                context.write(word, value);
+            }
         }
     }
 
