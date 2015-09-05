@@ -42,7 +42,7 @@ public class OrphanPages extends Configured implements Tool {
     	job.setMapperClass(LinkCountMap.class);
     	job.setReducerClass(OrphanPageReduce.class);
     	
-    	FileInputFormat.setInputPathFilter(job, new Path(args[0]));
+    	FileInputFormat.setInputPaths(job, new Path(args[0]));
     	FileOutputFormat.setOutputPath(job, new Path(args[1]));
     	
     	job.setInputFormatClass(KeyValueTextInputFormat.class);
