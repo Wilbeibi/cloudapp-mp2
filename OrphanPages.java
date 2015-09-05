@@ -77,7 +77,7 @@ public class OrphanPages extends Configured implements Tool {
             //DONE
         	boolean orphan = true;
         	for (IntWritable val: values) {
-        		if (val.get() > 0) {
+        		if (val.get() > 1) {
         			orphan = false;
         			break;
         		}

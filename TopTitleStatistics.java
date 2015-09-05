@@ -199,7 +199,7 @@ public class TopTitleStatistics extends Configured implements Tool {
         public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context) throws IOException, InterruptedException {
             Integer sum = 0, mean = 0, max = Integer.MIN_VALUE, min = Integer.MAX_VALUE, var = 0;
 
-            // TODO
+            // DONE
             for (TextArrayWritable val: values) {
             	Text[] pair = (Text[]) val.toArray();
             	
