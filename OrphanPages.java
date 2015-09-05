@@ -34,7 +34,8 @@ public class OrphanPages extends Configured implements Tool {
     	Job job = Job.getInstance(conf, "Orphan Pages");
     	// set final output type
     	job.setOutputKeyClass(IntWritable.class);
-    	job.setOutputValueClass(NullWritable.class);
+    	job.setOutputValueClass(IntWritable.class);
+    	//job.setOutputValueClass(NullWritable.class);
     	
     	job.setMapOutputKeyClass(IntWritable.class);
     	job.setMapOutputValueClass(IntWritable.class);
@@ -74,17 +75,22 @@ public class OrphanPages extends Configured implements Tool {
     public static class OrphanPageReduce extends Reducer<IntWritable, IntWritable, IntWritable, NullWritable> {
         @Override
         public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            //DONE
-        	boolean orphan = true;
+            //DOING
+//        	boolean orphan = true;
+//        	for (IntWritable val: values) {
+//        		if (val.get() > 0) {
+//        			orphan = false;
+//        			break;
+//        		}
+//        	}
+//        	if (orphan) {
+//        		context.write(key, NullWritable.get());
+//        	}
+        	int sum = 0; 
         	for (IntWritable val: values) {
-        		if (val.get() > 1) {
-        			orphan = false;
-        			break;
-        		}
+        		sum += val.get();
         	}
-        	if (orphan) {
-        		context.write(key, NullWritable.get());
-        	}
+        	context.write(key, new IntWritable(sum));
         }
     }
 }
