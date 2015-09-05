@@ -132,7 +132,7 @@ public class TopTitles extends Configured implements Tool {
         	String line = value.toString();
         	StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters);
         	while (tokenizer.hasMoreTokens()) {
-        		nextToken = tokenizer.nextToken().trim().toLowerCase();
+        		String nextToken = tokenizer.nextToken().trim().toLowerCase();
         		if (!this.stopWords.contains(nextToken)) {
         			context.write(new Text(nextToken), new IntWritable(1));
         		}
@@ -167,7 +167,7 @@ public class TopTitles extends Configured implements Tool {
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             // DONE
         	String word = key.toString();
-        	Integer count = Integer.parseInt(value);
+        	Integer count = Integer.parseInt(value.toString());
         	countToTitleMap.add(new Pair<Integer, String>(count, word));
         	
         	if (countToTitleMap.size() > this.N) {
