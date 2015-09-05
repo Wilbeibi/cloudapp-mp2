@@ -71,8 +71,8 @@ public class OrphanPages extends Configured implements Tool {
         	}
         }
     }
-
-    public static class OrphanPageReduce extends Reducer<IntWritable, IntWritable, IntWritable, NullWritable> {
+    //<IntWritable, IntWritable, IntWritable, NullWritable>
+    public static class OrphanPageReduce extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
         @Override
         public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             //DOING
