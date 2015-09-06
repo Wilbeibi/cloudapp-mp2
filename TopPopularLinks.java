@@ -183,7 +183,7 @@ public class TopPopularLinks extends Configured implements Tool {
             for (Pair<Integer, Integer> item: countToIdMap) {
             	IntWritable count = new IntWritable(item.first);
             	IntWritable id = new IntWritable(item.second);
-            	context.write(id, count);
+            	context.write(count, id);
             }
         }
     }
