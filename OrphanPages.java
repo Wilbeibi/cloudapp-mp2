@@ -54,9 +54,9 @@ public class OrphanPages extends Configured implements Tool {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             //DONE 
         	// weird, add trim() after nextToken() make it works
-        	String delimiter = " :";
+        	String delimiters = " :";
         	String line = value.toString(); 
-        	StringTokenizer tokenizer = new StringTokenizer(line, delimiter);
+        	StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
         	if (tokenizer.hasMoreTokens()) {
         		Integer from = Integer.parseInt(tokenizer.nextToken().trim());
         		context.write(new IntWritable(from), new IntWritable(0));
