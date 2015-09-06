@@ -19,8 +19,6 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import TopWords.TextArrayWritable;
-
 import java.io.IOException;
 import java.lang.Integer;
 import java.util.StringTokenizer;
