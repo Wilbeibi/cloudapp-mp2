@@ -133,8 +133,8 @@ public class TopPopularLinks extends Configured implements Tool {
         
         @Override
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-        	Integer count = Integer.parseInt(value);
-        	Integer id = Integer.parseInt(key);
+        	Integer count = Integer.parseInt(value.toString());
+        	Integer id = Integer.parseInt(key.toString());
         	countToIdMap.add(new Pair<Integer, Integer> (count, id));
         	
         	if (countToIdMap.size() > this.N) {
@@ -178,8 +178,8 @@ public class TopPopularLinks extends Configured implements Tool {
             }
             
             for (Pair<Integer, Integer> item: countToIdMap) {
-            	IntWritable count = new IntWritable(item[0]);
-            	IntWritable id = new IntWritable(item[1]);
+            	IntWritable count = new IntWritable(item.first);
+            	IntWritable id = new IntWritable(item.second);
             	context.write(id, count);
             }
         }
