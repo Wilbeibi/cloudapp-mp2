@@ -96,7 +96,7 @@ public class TopPopularLinks extends Configured implements Tool {
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
         // DONE
     	@Override
-    	public void map(Object key, Text value, Context) throws IOException, InterruptedException {
+    	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
     		String delimiters = " :";
     		String line = value.toString(); 
     		StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
@@ -115,7 +115,7 @@ public class TopPopularLinks extends Configured implements Tool {
     public static class LinkCountReduce extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
         // DONE
     	@Override
-    	public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException) {
+    	public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
     		int sum = 0;
     		for (IntWritable val: values) {
     			sum += val.get();
