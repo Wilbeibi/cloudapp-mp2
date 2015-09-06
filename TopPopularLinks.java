@@ -21,6 +21,8 @@ import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
 import java.lang.Integer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
@@ -180,7 +182,19 @@ public class TopPopularLinks extends Configured implements Tool {
             	}            	
             }
             
+            ArrayList<Pair<Integer, Integer>>  result = new ArrayList<Pair<Integer, Integer>>();
+            
             for (Pair<Integer, Integer> item: countToIdMap) {
+            	result.add(item);
+            }
+            Collections.sort(result, new Comparator<Pair<Integer, Integer>>() {
+            	@Override
+            	public int compare(Pair<Integer, Integer> a, Pair<Integer, Integer> b) {
+            		return a.second.compareTo(b.second);
+            	}
+            });
+            
+            for (Pair<Integer, Integer> item: result) {
             	IntWritable count = new IntWritable(item.first);
             	IntWritable id = new IntWritable(item.second);
             	// close to right answer, need to sort result by id
