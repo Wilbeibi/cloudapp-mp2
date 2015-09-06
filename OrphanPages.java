@@ -45,8 +45,8 @@ public class OrphanPages extends Configured implements Tool {
     	FileInputFormat.setInputPaths(job, new Path(args[0]));
     	FileOutputFormat.setOutputPath(job, new Path(args[1]));
     	
-    	//job.setInputFormatClass(KeyValueTextInputFormat.class);
-        //job.setOutputFormatClass(TextOutputFormat.class);
+    	job.setInputFormatClass(KeyValueTextInputFormat.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
         
     	job.setJarByClass(OrphanPages.class);
     	return job.waitForCompletion(true) ? 0 : 1;
@@ -55,8 +55,9 @@ public class OrphanPages extends Configured implements Tool {
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            //DONE
-        	String delimiter = ": ";
+            //DONE 
+        	// weird, add trim() after nextToken() make it works
+        	String delimiter = " :";
         	String line = value.toString(); 
         	StringTokenizer tokenizer = new StringTokenizer(line, delimiter);
         	if (tokenizer.hasMoreTokens()) {
@@ -74,7 +75,7 @@ public class OrphanPages extends Configured implements Tool {
     public static class OrphanPageReduce extends Reducer<IntWritable, IntWritable, IntWritable, NullWritable> {
         @Override
         public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            //DOING
+            //DONE
         	boolean orphan = true;
         	for (IntWritable val: values) {
         		if (val.get() > 0) {
