@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.Comparator;
 
 // >>> Don't Change
 public class TopPopularLinks extends Configured implements Tool {
