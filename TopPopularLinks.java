@@ -19,6 +19,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import TopWords.TextArrayWritable;
+
 import java.io.IOException;
 import java.lang.Integer;
 import java.util.StringTokenizer;
@@ -74,6 +76,9 @@ public class TopPopularLinks extends Configured implements Tool {
     	Job jobB = Job.getInstance(conf, "Top Popular Links");
     	jobB.setOutputKeyClass(IntWritable.class);
     	jobB.setOutputValueClass(IntWritable.class);
+    	
+    	jobB.setMapOutputKeyClass(NullWritable.class);
+        jobB.setMapOutputValueClass(IntArrayWritable.class);
     	
     	jobB.setMapperClass(TopLinksMap.class);
     	jobB.setReducerClass(TopLinksReduce.class);
