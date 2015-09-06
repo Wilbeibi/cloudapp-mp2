@@ -34,8 +34,7 @@ public class OrphanPages extends Configured implements Tool {
     	Job job = Job.getInstance(conf, "Orphan Pages");
     	// set final output type
     	job.setOutputKeyClass(IntWritable.class);
-    	job.setOutputValueClass(IntWritable.class);
-    	//job.setOutputValueClass(NullWritable.class);
+    	job.setOutputValueClass(NullWritable.class);
     	
     	job.setMapOutputKeyClass(IntWritable.class);
     	job.setMapOutputValueClass(IntWritable.class);
@@ -55,8 +54,6 @@ public class OrphanPages extends Configured implements Tool {
 
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
         @Override
-        
-        // TODO use set instead of new
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             //DONE
         	String delimiter = ": ";
@@ -73,26 +70,22 @@ public class OrphanPages extends Configured implements Tool {
         	}
         }
     }
-    //<IntWritable, IntWritable, IntWritable, NullWritable>
-    public static class OrphanPageReduce extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+
+    public static class OrphanPageReduce extends Reducer<IntWritable, IntWritable, IntWritable, NullWritable> {
         @Override
         public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             //DOING
-//        	boolean orphan = true;
-//        	for (IntWritable val: values) {
-//        		if (val.get() > 0) {
-//        			orphan = false;
-//        			break;
-//        		}
-//        	}
-//        	if (orphan) {
-//        		context.write(key, NullWritable.get());
-//        	}
-        	int sum = 0; 
+        	boolean orphan = true;
         	for (IntWritable val: values) {
-        		sum += val.get();
+        		if (val.get() > 0) {
+        			orphan = false;
+        			break;
+        		}
         	}
-        	context.write(key, new IntWritable(sum));
+        	if (orphan) {
+        		context.write(key, NullWritable.get());
+        	}
+    
         }
     }
 }
