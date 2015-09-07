@@ -170,7 +170,7 @@ public class PopularityLeague extends Configured implements Tool {
             	Integer link = pair[0].get();
             	Integer count = pair[1].get();
             	
-            	league.add(new Pair<Integer, Integer>(link, count));                 	
+            	league.add(new Pair(link, count));                 	
             }
     		
     		if (league.size() == 0) {
