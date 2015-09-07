@@ -118,7 +118,7 @@ public class PopularityLeague extends Configured implements Tool {
         protected void setup(Context context) throws IOException,InterruptedException {
             Configuration conf = context.getConfiguration();
             String league_file = conf.get("league");
-            this.leagueSet = new HashSet<String>(Arrays.asList(readHDFS(league_file, conf).split("\n")));
+            this.leagueSet = new HashSet<String>(Arrays.asList(readHDFSFile(league_file, conf).split("\n")));
         }
 
     	@Override
@@ -160,7 +160,7 @@ public class PopularityLeague extends Configured implements Tool {
     	}
     }
     
-    public static class LegueLinksReducer extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
+    public static class LeagueLinksReducer extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
     	private ArrayList<Pair<Integer, Integer>> league = new ArrayList<Pair<Integer, Integer>>();
     	@Override 
     	public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
@@ -170,7 +170,7 @@ public class PopularityLeague extends Configured implements Tool {
             	Integer link = pair[0].get();
             	Integer count = pair[1].get();
             	
-            	league.add(new Pair<Integer, Integer>(link, count));                 	
+            	league.add(Pair<Integer, Integer>(link, count));                 	
             }
     		
     		if (league.size() == 0) {
@@ -184,7 +184,7 @@ public class PopularityLeague extends Configured implements Tool {
             });
     		
     		int rank = 0, prev_popularity = league.get(0).second;
-    		context.write(new IntWritable(league.get(0).first), rank);
+    		context.write(new IntWritable(league.get(0).first), new IntWritable(rank));
     		
     		for (int i = 1; i < league.size(); i++) {
     			Pair<Integer, Integer> curr = league.get(i);
