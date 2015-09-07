@@ -71,31 +71,31 @@ public class PopularityLeague extends Configured implements Tool {
     	jobA.setReducerClass(LinkCountReduce.class);
 
     	FileInputFormat.setInputPaths(jobA, new Path(args[0]));
-    	//FileOutputFormat.setOutputPath(jobA, tmpPath);
-    	FileOutputFormat.setOutputPath(jobA, new Path(args[1]));
+    	FileOutputFormat.setOutputPath(jobA, tmpPath);
+    	//FileOutputFormat.setOutputPath(jobA, new Path(args[1]));
 
     	jobA.setJarByClass(PopularityLeague.class);
-    	//jobA.waitForCompletion(true);
-    	return jobA.waitForCompletion(true) ? 0 : 1;
+    	jobA.waitForCompletion(true);
+    	//return jobA.waitForCompletion(true) ? 0 : 1;
 
-//    	Job jobB = Job.getInstance(conf, "Popularity League");
-//    	jobB.setOutputKeyClass(IntWritable.class);
-//    	jobB.setOutputValueClass(IntWritable.class);
-//
-//    	jobB.setMapOutputKeyClass(NullWritable.class);
-//    	jobB.setMapOutputValueClass(IntArrayWritable.class);
-//
-//    	jobB.setMapperClass(LeagueLinksMapper.class);
-//    	jobB.setReducerClass(LeagueLinksReducer.class);
-//
-//    	FileInputFormat.setInputPaths(jobB, tmpPath);
-//        FileOutputFormat.setOutputPath(jobB, new Path(args[1]));
-//
-//        jobB.setInputFormatClass(KeyValueTextInputFormat.class);
-//        jobB.setOutputFormatClass(TextOutputFormat.class);
-//
-//        jobB.setJarByClass(PopularityLeague.class);
-//    	return jobB.waitForCompletion(true) ? 0 : 1;
+    	Job jobB = Job.getInstance(conf, "Popularity League");
+    	jobB.setOutputKeyClass(IntWritable.class);
+    	jobB.setOutputValueClass(IntWritable.class);
+
+    	jobB.setMapOutputKeyClass(NullWritable.class);
+    	jobB.setMapOutputValueClass(IntArrayWritable.class);
+
+    	jobB.setMapperClass(LeagueLinksMapper.class);
+    	jobB.setReducerClass(LeagueLinksReducer.class);
+
+    	FileInputFormat.setInputPaths(jobB, tmpPath);
+        FileOutputFormat.setOutputPath(jobB, new Path(args[1]));
+
+        jobB.setInputFormatClass(KeyValueTextInputFormat.class);
+        jobB.setOutputFormatClass(TextOutputFormat.class);
+
+        jobB.setJarByClass(PopularityLeague.class);
+    	return jobB.waitForCompletion(true) ? 0 : 1;
     }
 
     public static String readHDFSFile(String path, Configuration conf) throws IOException{
@@ -134,6 +134,7 @@ public class PopularityLeague extends Configured implements Tool {
     		}
     		while (tokenizer.hasMoreElements()) {
     			Integer to = Integer.parseInt(tokenizer.nextToken().trim());
+    			// Important, type must be same
     			if (this.leagueSet.contains(to.toString())) {
     			context.write(new IntWritable(to), new IntWritable(1));
     			}
