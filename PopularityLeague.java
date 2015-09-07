@@ -115,12 +115,12 @@ public class PopularityLeague extends Configured implements Tool {
 
     // TODO
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
-    	//Set<String> leagueSet;
+    	Set<String> leagueSet;
     	@Override
         protected void setup(Context context) throws IOException,InterruptedException {
             Configuration conf = context.getConfiguration();
             String league_file = conf.get("league");
-            //this.leagueSet = new HashSet<String>(Arrays.asList(readHDFSFile(league_file, conf).split("\n")));
+            this.leagueSet = new HashSet<String>(Arrays.asList(readHDFSFile(league_file, conf).split("\n")));
         }
 
     	@Override
@@ -134,9 +134,9 @@ public class PopularityLeague extends Configured implements Tool {
     		}
     		while (tokenizer.hasMoreElements()) {
     			Integer to = Integer.parseInt(tokenizer.nextToken().trim());
-    			//if (this.leagueSet.contains(to)) {
+    			if (this.leagueSet.contains(to.toString())) {
     			context.write(new IntWritable(to), new IntWritable(1));
-    			//}
+    			}
     		}
     	}
     }
