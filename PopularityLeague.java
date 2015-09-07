@@ -36,7 +36,7 @@ public class PopularityLeague extends Configured implements Tool {
         int res = ToolRunner.run(new Configuration(), new PopularityLeague(), args);
         System.exit(res);
     }
-    
+
     public static class IntArrayWritable extends ArrayWritable {
         public IntArrayWritable() {
             super(IntWritable.class);
@@ -59,7 +59,7 @@ public class PopularityLeague extends Configured implements Tool {
     	FileSystem fs = FileSystem.get(conf);
         Path tmpPath = new Path("/mp2/tmp");
         fs.delete(tmpPath, true);
-        
+
     	Job jobA = Job.getInstance(conf, "Popularity Count");
     	jobA.setOutputKeyClass(IntWritable.class);
     	jobA.setOutputValueClass(IntWritable.class);
@@ -75,23 +75,23 @@ public class PopularityLeague extends Configured implements Tool {
 
     	jobA.setJarByClass(PopularityLeague.class);
     	jobA.waitForCompletion(true);
-    	
+
     	Job jobB = Job.getInstance(conf, "Popularity League");
     	jobB.setOutputKeyClass(IntWritable.class);
     	jobB.setOutputValueClass(IntWritable.class);
-    	
+
     	jobB.setMapOutputKeyClass(NullWritable.class);
     	jobB.setMapOutputValueClass(IntArrayWritable.class);
-    	
+
     	jobB.setMapperClass(LeagueLinksMapper.class);
     	jobB.setReducerClass(LeagueLinksReducer.class);
-    	
+
     	FileInputFormat.setInputPaths(jobB, tmpPath);
         FileOutputFormat.setOutputPath(jobB, new Path(args[1]));
 
         jobB.setInputFormatClass(KeyValueTextInputFormat.class);
         jobB.setOutputFormatClass(TextOutputFormat.class);
-        
+
         jobB.setJarByClass(PopularityLeague.class);
     	return jobB.waitForCompletion(true) ? 0 : 1;
     }
@@ -149,30 +149,30 @@ public class PopularityLeague extends Configured implements Tool {
     		context.write(key, new IntWritable(count));
     	}
     }
-    
+
     public static class LeagueLinksMapper extends Mapper<Text, Text, NullWritable, IntArrayWritable> {
     	@Override
-    	public void map(Text key, Text value, Context context) throws IOException, InterruptedException { 
+    	public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
     		Integer[] kv = {Integer.parseInt(key.toString()), Integer.parseInt(value.toString())};
             IntArrayWritable val = new IntArrayWritable(kv);
             context.write(NullWritable.get(), val);
-    		
+
     	}
     }
-    
+
     public static class LeagueLinksReducer extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
     	private ArrayList<Pair<Integer, Integer>> league = new ArrayList<Pair<Integer, Integer>>();
-    	@Override 
+    	@Override
     	public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
     		for (IntArrayWritable val: values) {
             	IntWritable[] pair = (IntWritable[]) val.toArray();
-            	
+
             	Integer link = pair[0].get();
             	Integer count = pair[1].get();
-            	
-            	league.add(new Pair(link, count));                 	
+
+            	league.add(new Pair(link, count));
             }
-    		
+
     		if (league.size() == 0) {
     			return;
     		}
@@ -182,10 +182,10 @@ public class PopularityLeague extends Configured implements Tool {
             		return a.second.compareTo(b.second);
             	}
             });
-    		
+
     		int rank = 0, prev_popularity = league.get(0).second;
     		context.write(new IntWritable(league.get(0).first), new IntWritable(rank));
-    		
+
     		for (int i = 1; i < league.size(); i++) {
     			Pair<Integer, Integer> curr = league.get(i);
     			if (curr.second > prev_popularity) {
@@ -196,60 +196,59 @@ public class PopularityLeague extends Configured implements Tool {
     		}
     	}
     }
-    
-    
-    
 
-    class Pair<A extends Comparable<? super A>,
+}
+
+
+class Pair<A extends Comparable<? super A>,
+        B extends Comparable<? super B>>
+        implements Comparable<Pair<A, B>> {
+
+    public final A first;
+    public final B second;
+
+    public Pair(A first, B second) {
+        this.first = first;
+        this.second = second;
+    }
+
+    public static <A extends Comparable<? super A>,
             B extends Comparable<? super B>>
-            implements Comparable<Pair<A, B>> {
+    Pair<A, B> of(A first, B second) {
+        return new Pair<A, B>(first, second);
+    }
 
-        public final A first;
-        public final B second;
+    @Override
+    public int compareTo(Pair<A, B> o) {
+        int cmp = o == null ? 1 : (this.first).compareTo(o.first);
+        return cmp == 0 ? (this.second).compareTo(o.second) : cmp;
+    }
 
-        public Pair(A first, B second) {
-            this.first = first;
-            this.second = second;
-        }
+    @Override
+    public int hashCode() {
+        return 31 * hashcode(first) + hashcode(second);
+    }
 
-        public static <A extends Comparable<? super A>,
-                B extends Comparable<? super B>>
-        Pair<A, B> of(A first, B second) {
-            return new Pair<A, B>(first, second);
-        }
+    private static int hashcode(Object o) {
+        return o == null ? 0 : o.hashCode();
+    }
 
-        @Override
-        public int compareTo(Pair<A, B> o) {
-            int cmp = o == null ? 1 : (this.first).compareTo(o.first);
-            return cmp == 0 ? (this.second).compareTo(o.second) : cmp;
-        }
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Pair))
+            return false;
+        if (this == obj)
+            return true;
+        return equal(first, ((Pair<?, ?>) obj).first)
+                && equal(second, ((Pair<?, ?>) obj).second);
+    }
 
-        @Override
-        public int hashCode() {
-            return 31 * hashcode(first) + hashcode(second);
-        }
+    private boolean equal(Object o1, Object o2) {
+        return o1 == o2 || (o1 != null && o1.equals(o2));
+    }
 
-        private static int hashcode(Object o) {
-            return o == null ? 0 : o.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof Pair))
-                return false;
-            if (this == obj)
-                return true;
-            return equal(first, ((Pair<?, ?>) obj).first)
-                    && equal(second, ((Pair<?, ?>) obj).second);
-        }
-
-        private boolean equal(Object o1, Object o2) {
-            return o1 == o2 || (o1 != null && o1.equals(o2));
-        }
-
-        @Override
-        public String toString() {
-            return "(" + first + ", " + second + ')';
-        }
+    @Override
+    public String toString() {
+        return "(" + first + ", " + second + ')';
     }
 }
