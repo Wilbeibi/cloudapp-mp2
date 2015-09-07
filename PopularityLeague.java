@@ -64,36 +64,38 @@ public class PopularityLeague extends Configured implements Tool {
     	jobA.setOutputKeyClass(IntWritable.class);
     	jobA.setOutputValueClass(IntWritable.class);
 
-    	jobA.setMapOutputKeyClass(IntWritable.class);
-    	jobA.setMapOutputValueClass(IntWritable.class);
+//    	jobA.setMapOutputKeyClass(IntWritable.class);
+//    	jobA.setMapOutputValueClass(IntWritable.class);
 
     	jobA.setMapperClass(LinkCountMap.class);
     	jobA.setReducerClass(LinkCountReduce.class);
 
     	FileInputFormat.setInputPaths(jobA, new Path(args[0]));
-    	FileOutputFormat.setOutputPath(jobA, tmpPath);
+    	//FileOutputFormat.setOutputPath(jobA, tmpPath);
+    	FileOutputFormat.setOutputPath(jobA, new Path(args[1]));
 
     	jobA.setJarByClass(PopularityLeague.class);
-    	jobA.waitForCompletion(true);
+    	//jobA.waitForCompletion(true);
+    	return jobA.waitForCompletion(true) ? 0 : 1;
 
-    	Job jobB = Job.getInstance(conf, "Popularity League");
-    	jobB.setOutputKeyClass(IntWritable.class);
-    	jobB.setOutputValueClass(IntWritable.class);
-
-    	jobB.setMapOutputKeyClass(NullWritable.class);
-    	jobB.setMapOutputValueClass(IntArrayWritable.class);
-
-    	jobB.setMapperClass(LeagueLinksMapper.class);
-    	jobB.setReducerClass(LeagueLinksReducer.class);
-
-    	FileInputFormat.setInputPaths(jobB, tmpPath);
-        FileOutputFormat.setOutputPath(jobB, new Path(args[1]));
-
-        jobB.setInputFormatClass(KeyValueTextInputFormat.class);
-        jobB.setOutputFormatClass(TextOutputFormat.class);
-
-        jobB.setJarByClass(PopularityLeague.class);
-    	return jobB.waitForCompletion(true) ? 0 : 1;
+//    	Job jobB = Job.getInstance(conf, "Popularity League");
+//    	jobB.setOutputKeyClass(IntWritable.class);
+//    	jobB.setOutputValueClass(IntWritable.class);
+//
+//    	jobB.setMapOutputKeyClass(NullWritable.class);
+//    	jobB.setMapOutputValueClass(IntArrayWritable.class);
+//
+//    	jobB.setMapperClass(LeagueLinksMapper.class);
+//    	jobB.setReducerClass(LeagueLinksReducer.class);
+//
+//    	FileInputFormat.setInputPaths(jobB, tmpPath);
+//        FileOutputFormat.setOutputPath(jobB, new Path(args[1]));
+//
+//        jobB.setInputFormatClass(KeyValueTextInputFormat.class);
+//        jobB.setOutputFormatClass(TextOutputFormat.class);
+//
+//        jobB.setJarByClass(PopularityLeague.class);
+//    	return jobB.waitForCompletion(true) ? 0 : 1;
     }
 
     public static String readHDFSFile(String path, Configuration conf) throws IOException{
@@ -113,12 +115,12 @@ public class PopularityLeague extends Configured implements Tool {
 
     // TODO
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
-    	Set<String> leagueSet;
+    	//Set<String> leagueSet;
     	@Override
         protected void setup(Context context) throws IOException,InterruptedException {
             Configuration conf = context.getConfiguration();
             String league_file = conf.get("league");
-            this.leagueSet = new HashSet<String>(Arrays.asList(readHDFSFile(league_file, conf).split("\n")));
+            //this.leagueSet = new HashSet<String>(Arrays.asList(readHDFSFile(league_file, conf).split("\n")));
         }
 
     	@Override
@@ -132,9 +134,9 @@ public class PopularityLeague extends Configured implements Tool {
     		}
     		while (tokenizer.hasMoreElements()) {
     			Integer to = Integer.parseInt(tokenizer.nextToken().trim());
-    			if (this.leagueSet.contains(to)) {
-    				context.write(new IntWritable(to), new IntWritable(1));
-    			}
+    			//if (this.leagueSet.contains(to)) {
+    			context.write(new IntWritable(to), new IntWritable(1));
+    			//}
     		}
     	}
     }
